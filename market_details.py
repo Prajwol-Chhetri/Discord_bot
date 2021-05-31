@@ -1,47 +1,50 @@
 import requests
 from bs4 import BeautifulSoup
 
-res = requests.get('https://www.sharesansar.com/today-share-price')  # getting response from the website
-soup = BeautifulSoup(res.text, 'html.parser')  # changes the string from res.text to soup object using html parser
-stock_table = soup.tbody  # getting the table containing stock details
-
-# getting the contents from the table
-company = stock_table.select('a')
-start = stock_table.select('td:nth-child(4)')
-highest = stock_table.select('td:nth-child(5)')
-lowest = stock_table.select('td:nth-child(6)')
-end = stock_table.select('td:nth-child(7)')
-change = stock_table.select('td:nth-child(15)')
-
-# creating lists to store top 5 gainers and losers
-top_gainers = []
-top_losers = []
-
-# creating a function that sorts the stocks according to their change
-def sort_stocks_by_change(stock_list):
-    return sorted(stock_list, key=lambda k: k['change'], reverse=True)
+res = requests.get('http://www.nepalstock.com/')  # summary of nepse
+# changes the string from res.text to soup object using html parser
+soup = BeautifulSoup(res.text, 'html.parser')
 
 
-#  creating a function to append the stock details to a list
-def create_custom_ml(company, start, highest, lowest, end, change):
+def market_status():
+    status = soup.find("div", {"class": "market-status"}).find('b')
+    if status.get_text() == "Market Open":
+        return True
+    else:
+        return False
+
+
+def get_script_detail(symbol):
+    res2 = requests.get('http://www.nepalstock.com/stocklive')  # live market
+    soup2 = BeautifulSoup(res2.text, 'html.parser')
+    live_table = soup2.find('tbody')
     stocks = []
+
+    # storing details of the company in respective variables
+    company = live_table.select('td:nth-child(2)')
+    ltp = live_table.select('td:nth-child(3)')
+    diff_price = live_table.select('td:nth-child(6)')
+    start = live_table.select('td:nth-child(7)')
+    highest = live_table.select('td:nth-child(8)')
+    lowest = live_table.select('td:nth-child(9)')
+
     for idx, item in enumerate(company):
         name = company[idx].getText()
-        close_price = end[idx].getText()
-        diff_price = float(change[idx].getText())
-        high_price = highest[idx].getText()
-        low_price = lowest[idx].getText()
+        last_traded_price = ltp[idx].getText()
+        change = float(diff_price[idx].getText())
         opening_price = start[idx].getText()
-        stocks.append({'company': name, 'open': opening_price, 'previous close': close_price, 'high': high_price,
-                       'low': low_price,
-                       'change': diff_price})
-    return sort_stocks_by_change(stocks)
+    high_price = highest[idx].getText()
+    low_price = lowest[idx].getText()
+    stocks.append({
+        'company': name,
+        'LTP': last_traded_price,
+        'open': opening_price,
+        'high': high_price,
+        'low': low_price,
+        'change': diff_price
+    })
+
+    company = next((item for item in stocks if item['company'] == symbol), None)
+    return company
 
 
-stocks_list = create_custom_ml(company, start, highest, lowest, end, change)
-
-
-def summary():
-    top_gainers.append(stocks_list[:4])
-    top_losers.append(list(reversed(stocks_list[-5:])))
-    return top_gainers, top_losers

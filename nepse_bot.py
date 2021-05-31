@@ -2,7 +2,7 @@ import os
 import discord
 # from keep_alive import keep_alive
 from check_time import check_time
-from market_details import summary, top_gainers, top_losers
+from market_details import market_status, get_script_detail
 
 client = discord.Client()
 
@@ -20,19 +20,25 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('hello'):
+    msg = message.content
+
+    if msg.startswith('hello'):
         await message.channel.send('Hello!')
 
-    if "status" in message.content:
-        if check_time():
+    if "status" in msg:
+        if market_status():
             await message.channel.send('Market is currently open')
         else:
             await message.channel.send('Market is currently closed')
 
-    if "summary" in message.content:
-        summary()
-        await message.channel.send(f'Top gainers are:\n{top_gainers}')
-        await message.channel.send(f'Top losers are:\n{top_losers}')
+    if msg.startswith("$script"):
+        symbol = msg.split("$script ", 1)[1]
+        if market_status():
+            company = get_script_detail(symbol.upper())
+            await message.channel.send(f'{company}')
+        else:
+            await message.channel.send(f'Sorry cannot get details of {symbol.upper()} as market is currently closed')
+
 
 
 client.run('')
