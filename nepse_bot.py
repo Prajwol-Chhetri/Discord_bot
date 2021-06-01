@@ -1,7 +1,6 @@
-import os
+# import os
 import discord
 # from keep_alive import keep_alive
-from check_time import check_time
 from market_details import market_status, get_script_detail
 
 client = discord.Client()
