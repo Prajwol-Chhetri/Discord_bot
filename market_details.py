@@ -2,7 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 
 
-def gainers(soup):
+def gainers():
+    res = requests.get('http://www.nepalstock.com/')
+    soup = BeautifulSoup(res.text, 'html.parser')
     top_gainers = []
     company = soup.select('#top-gainers .row1 > td:nth-child(1)')[:10]
     ltp = soup.select('#top-gainers .row1 > td:nth-child(2)')[:10]
@@ -24,7 +26,9 @@ def gainers(soup):
     return top_gainers
 
 
-def losers(soup):
+def losers():
+    res = requests.get('http://www.nepalstock.com/')
+    soup = BeautifulSoup(res.text, 'html.parser')
     top_losers = []
     company = soup.select('#top-losers .row1 > td:nth-child(1)')[:10]
     ltp = soup.select('#top-losers .row1 > td:nth-child(2)')[:10]
@@ -49,17 +53,14 @@ def losers(soup):
 def market_status():
     res = requests.get('http://www.nepalstock.com/')
     soup = BeautifulSoup(res.text, 'html.parser')
-    nepse = []
+    nepse = {}
 
     status = ((soup.find("div", {"class": "market-status"}).find('b')).get_text()).strip()
     index = ((soup.find("div", {"class": "current-index"})).get_text()).strip()
     point_change = float(((soup.find("div", {"class": "point-change"})).get_text()).strip())
     percent_change = ((soup.find("div", {"class": "percent-change"})).get_text()).strip()
 
-    top_losers = losers(soup)
-    top_gainers = gainers(soup)
-
-    nepse.extend([{'status': status, 'index': index, 'point-change': point_change, 'percent-change': percent_change}, top_losers, top_gainers])
+    nepse.update({'status': status, 'index': index, 'point-change': point_change, 'percent-change': percent_change})
     return nepse
 
 
