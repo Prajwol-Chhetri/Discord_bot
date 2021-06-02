@@ -1,6 +1,5 @@
 # import os
 import discord
-from discord.ext import commands
 # from keep_alive import keep_alive
 from market_details import market_status, get_live_script, gainers, losers
 from ss_scraper import get_script_detail
@@ -9,7 +8,6 @@ import nepali_datetime
 intents = discord.Intents.default()
 intents.members = True
 client = discord.Client(intents=intents)
-
 
 # token = os.environ['discord_token']
 now = nepali_datetime.datetime.now()
@@ -38,10 +36,14 @@ async def on_message(message):
 
     msg = message.content
 
-    if msg.startswith('hello'):
+    if msg.startswith('!hello'):
         await message.channel.send(f'Hello! {message.author.name}')
 
-    if "status" in msg:
+    if "!help" in msg:
+        help_msg = '__**USER MANUAL**__ \ncommand: **!hello** \ndescription: Greet User \ncommand: **!status** \ndescription: Return Current Status of Nepse \ncommand: **!gainers** \ndescription: Returns the top 10 gainers of the market currently. \ncommand: **!losers** \ndescription: Returns the top 10 losers of the market currently. \ncommand: **!script** *SYMBOL* \ndescription: Returns the details of the company. Symbol is the abbreviation of the company.'
+        await message.channel.send(help_msg)
+
+    if "!status" in msg:
         try:
             nepse = market_status()
             if nepse["point-change"] < 0:
@@ -56,23 +58,24 @@ async def on_message(message):
         except ConnectionError:
             await message.channel.send('We could not establish connection with server please try again')
 
-    if "gainers" in msg:
+    if "!gainers" in msg:
         try:
             top_gainers = gainers()
             await message.channel.send(f'The top gainers are: \n{top_gainers}')
         except ConnectionError:
             await message.channel.send('We could not establish connection with server please try again')
 
-    if "losers" in msg:
+    if "!losers" in msg:
         try:
             top_losers = losers()
             await message.channel.send(f'The top losers are: \n{top_losers}')
         except ConnectionError:
             await message.channel.send('We could not establish connection with server please try again')
 
-    if msg.startswith("$script"):
+
+    if msg.startswith("!script"):
         try:
-            symbol = msg.split("$script ", 1)[1]
+            symbol = msg.split("!script ", 1)[1]
             nepse = market_status()
             if nepse["status"] == "Market Open":
                 company = get_live_script(symbol.upper())
