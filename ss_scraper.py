@@ -2,9 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 res4 = requests.get('https://www.sharesansar.com/today-share-price')  # getting response from the website
-print(res4)
 soup4 = BeautifulSoup(res4.text, 'html.parser')  # changes the string from res.text to soup object using html parser
-print(soup4)
 stock_table = soup4.tbody  # getting the table containing stock details
 
 # getting the contents from the table
@@ -37,6 +35,4 @@ def get_script_detail(symbol):
     stocks = create_custom_ss()
     script = next((item for item in stocks if item['company'] == symbol), None)
     return script
-
-
 

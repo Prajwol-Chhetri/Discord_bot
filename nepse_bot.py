@@ -2,7 +2,7 @@
 import discord
 # from keep_alive import keep_alive
 from market_details import market_status, get_live_script
-# from ss_scraper import get_script_detail
+from ss_scraper import get_script_detail
 import nepali_datetime
 
 client = discord.Client()
@@ -52,9 +52,8 @@ async def on_message(message):
             company = get_live_script(symbol.upper())
             await message.channel.send(f'{company["company"]} \nAs of {current_date} {current_time} \nLTP = {company["LTP"]} \nOpening Price = {company["open"]} \nPrevious Close = {company["previous-close"]} \nToday\'s Highest Price = {company["high"]} \nToday\'s Lowest Price = {company["low"]} \nChange = {company["change"]}%')
         else:
-            # company = get_script_detail(symbol.upper())
-            # await message.channel.send(f'{company["company"]} \nAs of {current_date} {current_time} \nOpening Price = {company["open"]} \nPrevious Close = {company["previous close"]} \nToday\'s Highest Price = {company["high"]} \nToday\'s Lowest Price = {company["low"]} \nChange = {company["change"]}%')
-            await message.channel.send('Market Closed')
+            company = get_script_detail(symbol.upper())
+            await message.channel.send(f'{company["company"]} \nAs of {current_date} {current_time} \nOpening Price = {company["open"]} \nPrevious Close = {company["previous close"]} \nToday\'s Highest Price = {company["high"]} \nToday\'s Lowest Price = {company["low"]} \nChange = {company["change"]}%')
 
 client.run('')
 
