@@ -3,6 +3,7 @@ import discord
 from keep_alive import keep_alive
 from market_details import market_status, get_live_script, gainers, losers
 import nepali_datetime
+from ss_scraper import get_script_detail
 
 # Giving privilege to the bot to see members entering the server.
 intents = discord.Intents.default()
@@ -89,18 +90,23 @@ async def on_message(message):
         try:
             current_date = nepali_datetime.date.today()
             current_time = (nepali_datetime.datetime.time(now)).strftime("%I:%M%p")
-            symbol = msg.split("!script ", 1)[1]
             await message.channel.send('Please wait fetching the details of the script')
-            company = get_live_script(symbol.upper())
-            if company is None:
-                await message.channel.send(
-                    'We could not find the script. Please make sure you type in the symbol correctly')
-            else:
+            symbol = msg.split("!script ", 1)[1]
+            if market_status()['status'] == 'Market Open':
+                company = get_live_script(symbol.upper())
+                if company is None:
+                    await message.channel.send(
+                        'We could not find the script. Please make sure you type in the symbol correctly')
                 await message.channel.send(
                     f'{company["company"]} \nAs of {current_date} {current_time} \nLTP = {company["LTP"]} \nOpening Price = {company["open"]} \nPrevious Close = {company["previous-close"]} \nToday\'s Highest Price = {company["high"]} \nToday\'s Lowest Price = {company["low"]} \nChange = {company["change"]}%')
+            else:
+                company = get_script_detail(symbol.upper())
+                await message.channel.send(f'{company["company"]} \nAs of {current_date} {current_time} \nOpening Price = {company["open"]} \nPrevious Close = {company["previous close"]} \nToday\'s Highest Price = {company["high"]} \nToday\'s Lowest Price = {company["low"]} \nChange = {company["change"]}%')
         except (ConnectionError, TimeoutError) as error:
             await message.channel.send('We could not establish connection with server please try again')
+        except AttributeError:
+            await message.channel.send('We could not find the script. Please make sure you type in the symbol correctly')
 
 
 keep_alive()
-client.run('Your_Bot_Token_Here')
+client.run('YOUR_TOKEN_HERE')

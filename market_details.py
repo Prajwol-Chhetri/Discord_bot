@@ -81,6 +81,7 @@ def get_live_script(symbol):
     res2 = requests.get('http://www.nepalstock.com/stocklive')
     soup2 = BeautifulSoup(res2.text, 'html.parser')
     stock_table = soup2.find('tbody')
+    print(stock_table)
     stocks = []
 
     # storing details of the company in respective variables
@@ -114,5 +115,6 @@ def get_live_script(symbol):
     # returning None in-case user enters wrong symbol for company.
     company = next((item for item in stocks if item['company'] == symbol), None)
     return company
+
 
 
